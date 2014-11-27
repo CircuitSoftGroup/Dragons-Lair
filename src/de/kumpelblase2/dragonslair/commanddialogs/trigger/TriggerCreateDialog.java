@@ -21,14 +21,15 @@ public class TriggerCreateDialog extends ValidatingPrompt
 			final StringBuilder sb = new StringBuilder();
 			for(int i = 0; i < TriggerType.values().length; i++)
 			{
-				sb.append(ChatColor.AQUA + TriggerType.values()[i].toString() + ChatColor.WHITE);
+				sb.append(ChatColor.AQUA).append(TriggerType.values()[i].toString()).append(ChatColor.WHITE);
 				if(i != TriggerType.values().length - 1)
 					sb.append(", ");
 			}
-			return ChatColor.GREEN + "Avaible types: " + sb.toString();
+
+			return ChatColor.GREEN + "Available types: " + sb.toString();
 		}
 		else if(arg0.getSessionData("event_ids") == null)
-			return ChatColor.GREEN + "Please enter the event ids that should be excuted (separated by a komma):";
+			return ChatColor.GREEN + "Please enter the event ids that should be executed (separated by a comma):";
 		else if(arg0.getSessionData("add_option") == null)
 			return ChatColor.GREEN + "Do you want to add another option to the trigger?";
 		else if((Boolean)arg0.getSessionData("add_option"))
@@ -57,6 +58,7 @@ public class TriggerCreateDialog extends ValidatingPrompt
 		{
 			if(arg1.equals("back"))
 				return new TriggerManageDialog();
+
 			arg0.setSessionData("trigger_type", arg1.toUpperCase().replace(" ", "_"));
 		}
 		else if(arg0.getSessionData("event_ids") == null)
@@ -66,6 +68,7 @@ public class TriggerCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("trigger_type", null);
 				return this;
 			}
+
 			arg0.setSessionData("event_ids", arg1);
 		}
 		else if(arg0.getSessionData("add_option") == null)
@@ -75,8 +78,10 @@ public class TriggerCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("event_ids", null);
 				return this;
 			}
+
 			if(arg0.getSessionData("options") == null)
 				arg0.setSessionData("options", new ArrayList<Option>());
+
 			final AnswerType answer = new AnswerConverter(arg1).convert();
 			if(answer == AnswerType.AGREEMENT || answer == AnswerType.CONSIDERING_AGREEMENT || answer == AnswerType.CONSIDERING)
 				arg0.setSessionData("add_option", true);
@@ -88,11 +93,14 @@ public class TriggerCreateDialog extends ValidatingPrompt
 				{
 					boolean found = false;
 					for(final Option option : options)
+					{
 						if(option.getType().equalsIgnoreCase(required))
 						{
 							found = true;
 							break;
 						}
+					}
+
 					if(!found)
 					{
 						arg0.setSessionData("add_option", null);
@@ -100,19 +108,20 @@ public class TriggerCreateDialog extends ValidatingPrompt
 						return this;
 					}
 				}
+
 				final Trigger t = new Trigger();
 				t.setType(type);
 				final String[] idString = ((String)arg0.getSessionData("event_ids")).split(",");
 				final List<Integer> ids = new ArrayList<Integer>();
-				for(int i = 0; i < idString.length; i++)
+				for(String anIdString : idString)
 				{
-					final Integer id = Integer.parseInt(idString[i]);
+					final Integer id = Integer.parseInt(anIdString);
 					if(!ids.contains(id) && id != 0)
-						;
-					ids.add(id);
+						ids.add(id);
 				}
+
 				t.setEventIDs(ids);
-				t.setOptions((options).toArray(new Option[0]));
+				t.setOptions((options).toArray(new Option[(options).size()]));
 				GeneralUtilities.recalculateOptions(t);
 				t.save();
 				DragonsLairMain.debugLog("Created trigger with id '" + t.getID() + "'");
@@ -132,6 +141,7 @@ public class TriggerCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("add_option", null);
 				return this;
 			}
+
 			arg0.setSessionData("trigger_option_type", arg1);
 			arg0.setSessionData("add_option", false);
 		}
@@ -142,11 +152,13 @@ public class TriggerCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("add_option", true);
 				return this;
 			}
+
 			final Option option = new Option((String)arg0.getSessionData("trigger_option_type"), arg1);
 			((List<Option>)arg0.getSessionData("options")).add(option);
 			arg0.setSessionData("trigger_option_type", null);
 			arg0.setSessionData("add_option", null);
 		}
+
 		return this;
 	}
 
@@ -155,11 +167,15 @@ public class TriggerCreateDialog extends ValidatingPrompt
 	{
 		if(arg1.equals("back") || arg1.equals("cancel"))
 			return true;
+
 		if(arg0.getSessionData("trigger_type") == null)
 		{
 			for(final TriggerType type : TriggerType.values())
+			{
 				if(type.toString().equals(arg1.toUpperCase().replace(" ", "_")))
 					return true;
+			}
+
 			return false;
 		}
 		else if(arg0.getSessionData("event_ids") == null)
@@ -169,6 +185,7 @@ public class TriggerCreateDialog extends ValidatingPrompt
 			{
 				final String[] ids = arg1.split(",");
 				for(final String id : ids)
+				{
 					try
 					{
 						final Integer eid = Integer.parseInt(id);
@@ -183,6 +200,8 @@ public class TriggerCreateDialog extends ValidatingPrompt
 						arg0.getForWhom().sendRawMessage(ChatColor.RED + "The string '" + id + "' is not a valid number.");
 						return false;
 					}
+				}
+
 				return true;
 			}
 			else
@@ -201,22 +220,22 @@ public class TriggerCreateDialog extends ValidatingPrompt
 					arg0.getForWhom().sendRawMessage(ChatColor.RED + "Not a valid number.");
 					return false;
 				}
+
 				return true;
 			}
 		}
 		else if(arg0.getSessionData("add_option") == null)
 		{
 			final AnswerType type = new AnswerConverter(arg1).convert();
-			if(type == AnswerType.NOTHING)
-				return false;
-			return true;
+			return type != AnswerType.NOTHING;
 		}
 		else if((Boolean)arg0.getSessionData("add_option"))
 		{
 			final TriggerTypeOptions options = TriggerTypeOptions.valueOf((String)arg0.getSessionData("trigger_type"));
 			if(options.hasOption(arg1))
 				return true;
-			arg0.getForWhom().sendRawMessage(ChatColor.RED + "The option is not avaiable for this trigger type.");
+
+			arg0.getForWhom().sendRawMessage(ChatColor.RED + "The option is not available for this trigger type.");
 			return false;
 		}
 		else

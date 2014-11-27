@@ -16,17 +16,27 @@ public final class InventoryUtilities
 	{
 		ItemStack[] items = p.getInventory().getContents();
 		for(final ItemStack item : items)
+		{
 			if(item != null)
+			{
 				if(item.getType() != Material.AIR)
 					return false;
+			}
+		}
+
 		if(checkArmor)
 		{
 			items = p.getInventory().getArmorContents();
 			for(final ItemStack item : items)
+			{
 				if(item != null)
+				{
 					if(item.getType() != Material.AIR)
 						return false;
+				}
+			}
 		}
+
 		return true;
 	}
 
@@ -37,7 +47,9 @@ public final class InventoryUtilities
 		{
 			if(inv[i] == null)
 				continue;
+
 			if(inv[i].getType() == toRemove.getType())
+			{
 				if(inv[i].getAmount() > toRemove.getAmount())
 				{
 					inv[i].setAmount(inv[i].getAmount() - toRemove.getAmount());
@@ -56,7 +68,9 @@ public final class InventoryUtilities
 					else
 						toRemove.setAmount(toRemove.getAmount() - oldAmount);
 				}
+			}
 		}
+
 		if(toRemove.getAmount() > 0)
 			return false;
 		else
@@ -70,6 +84,7 @@ public final class InventoryUtilities
 	{
 		if(isInventoryEmpty(p, false))
 			return "";
+
 		final ItemStack[] contents = p.getInventory().getContents();
 		return itemsToString(contents);
 	}
@@ -84,23 +99,26 @@ public final class InventoryUtilities
 	{
 		if(inv == null || inv.length() == 0)
 			return new ItemStack[0];
+
 		ItemStack[] items;
-		final String[] itemSplitt = inv.split(";");
-		items = new ItemStack[itemSplitt.length];
-		for(int i = 0; i < itemSplitt.length; i++)
+		final String[] itemSplit = inv.split(";");
+		items = new ItemStack[itemSplit.length];
+		for(int i = 0; i < itemSplit.length; i++)
 		{
-			final String[] itemdata = itemSplitt[i].split(":");
+			final String[] itemdata = itemSplit[i].split(":");
 			try
 			{
 				if(itemdata.length >= 3)
 				{
 					items[i] = new ItemStack(Integer.parseInt(itemdata[0]), Integer.parseInt(itemdata[1]), Short.parseShort(itemdata[2]));
 					if(itemdata.length > 3)
+					{
 						for(int i2 = 0; i2 <= (itemdata.length - 3); i2 += 2)
 						{
 							final Enchantment e = Enchantment.getByName(itemdata[3 + i2]);
 							items[i].addEnchantment(e, Integer.parseInt(itemdata[4 + i2]));
 						}
+					}
 				}
 				else if(itemdata.length == 2)
 					items[i] = new ItemStack(Integer.parseInt(itemdata[0]), Integer.parseInt(itemdata[1]));
@@ -109,10 +127,10 @@ public final class InventoryUtilities
 			}
 			catch(final Exception e)
 			{
-				DragonsLairMain.Log.warning("Unable to parse item: " + itemSplitt[i]);
-				continue;
+				DragonsLairMain.Log.warning("Unable to parse item: " + itemSplit[i]);
 			}
 		}
+
 		return items;
 	}
 
@@ -120,6 +138,7 @@ public final class InventoryUtilities
 	{
 		if(items == null || items.length == 0)
 			return "";
+
 		final StringBuilder itemString = new StringBuilder();
 		for(int i = 0; i < items.length; i++)
 		{
@@ -127,14 +146,20 @@ public final class InventoryUtilities
 				itemString.append("0:0:0");
 			else
 			{
-				itemString.append(items[i].getTypeId() + ":" + items[i].getAmount() + ":" + items[i].getDurability());
+				itemString.append(items[i].getTypeId()).append(":").append(items[i].getAmount()).append(":").append(items[i].getDurability());
 				if(items[i].getEnchantments().size() > 0)
+				{
 					for(final Entry<Enchantment, Integer> enchantment : items[i].getEnchantments().entrySet())
-						itemString.append(":" + enchantment.getKey().getName() + ":" + enchantment.getValue());
+					{
+						itemString.append(":").append(enchantment.getKey().getName()).append(":").append(enchantment.getValue());
+					}
+				}
 			}
+
 			if(i != items.length - 1)
 				itemString.append(";");
 		}
+
 		return itemString.toString();
 	}
 
@@ -142,6 +167,7 @@ public final class InventoryUtilities
 	{
 		if(item == null)
 			return "0:0:0";
+
 		return item.getTypeId() + ":" + item.getAmount() + ":" + item.getDurability();
 	}
 
@@ -194,6 +220,7 @@ public final class InventoryUtilities
 			{
 				if(!items.containsKey(i))
 					continue;
+
 				final ItemStack item = items.get(i);
 				if(item.getMaxStackSize() - item.getAmount() > 1)
 				{
@@ -215,12 +242,16 @@ public final class InventoryUtilities
 					}
 				}
 			}
+
 			if(inNew.getAmount() > 0)
+			{
 				if(inContents.firstEmpty() != -1)
 					changes.put("slot" + inContents.firstEmpty(), InventoryUtilities.itemToString(inNew));
+			}
 		}
 		else if(inContents.firstEmpty() != -1)
 			changes.put("slot" + inContents.firstEmpty(), InventoryUtilities.itemToString(inNew));
+
 		return changes;
 	}
 }

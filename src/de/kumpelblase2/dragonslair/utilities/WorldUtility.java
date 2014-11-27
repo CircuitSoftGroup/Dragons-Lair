@@ -7,18 +7,21 @@ import de.kumpelblase2.dragonslair.DragonsLairMain;
 
 public final class WorldUtility
 {
-	public static LivingEntity getNearestEntity(final Location loc, final List<Entity> entites, final List<EntityType> excluded)
+	public static LivingEntity getNearestEntity(final Location loc, final List<Entity> entities, final List<EntityType> excluded)
 	{
-		if(entites.size() == 0)
+		if(entities.size() == 0)
 			return null;
+
 		double current = Double.POSITIVE_INFINITY;
 		LivingEntity nearest = null;
-		for(final Entity e : entites)
+		for(final Entity e : entities)
 		{
 			if(!(e instanceof LivingEntity) || excluded.contains(e.getType()))
 				continue;
+
 			if(e instanceof Player && DragonsLairMain.getDungeonManager().getNPCManager().isRemoteEntity((LivingEntity)e))
 				continue;
+
 			final double squared = e.getLocation().distanceSquared(loc);
 			if(squared < current && squared < 1024D)
 			{
@@ -26,17 +29,18 @@ public final class WorldUtility
 				nearest = (LivingEntity)e;
 			}
 		}
+
 		return nearest;
 	}
 
-	public static void enhancedTelepot(final Entity entity, final Location to)
+	public static void enhancedTeleport(final Entity entity, final Location to)
 	{
 		final World w = to.getWorld();
 		final Chunk ch = w.getChunkAt(to);
 		if(ch.isLoaded())
 			w.refreshChunk(ch.getX(), ch.getZ());
-		else
-			w.loadChunk(ch);
+
+		else w.loadChunk(ch);
 		entity.teleport(to);
 	}
 
@@ -49,15 +53,15 @@ public final class WorldUtility
 	{
 		try
 		{
-			final String[] splitt = locationstring.split(":");
-			final String world = splitt[0];
-			final int x = Integer.parseInt(splitt[1]);
-			final int y = Integer.parseInt(splitt[2]);
-			final int z = Integer.parseInt(splitt[3]);
-			if(splitt.length == 6)
+			final String[] split = locationstring.split(":");
+			final String world = split[0];
+			final int x = Integer.parseInt(split[1]);
+			final int y = Integer.parseInt(split[2]);
+			final int z = Integer.parseInt(split[3]);
+			if(split.length == 6)
 			{
-				final float pitch = Float.parseFloat(splitt[5]);
-				final float yaw = Float.parseFloat(splitt[4]);
+				final float pitch = Float.parseFloat(split[5]);
+				final float yaw = Float.parseFloat(split[4]);
 				return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
 			}
 			else

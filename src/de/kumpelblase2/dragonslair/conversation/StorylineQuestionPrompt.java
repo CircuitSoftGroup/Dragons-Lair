@@ -9,12 +9,12 @@ import de.kumpelblase2.dragonslair.api.NPC;
 import de.kumpelblase2.dragonslair.events.conversation.ConversationNextDialogEvent;
 import de.kumpelblase2.dragonslair.utilities.GeneralUtilities;
 
-public class StorylineQuestionPromt extends ValidatingPrompt
+public class StorylineQuestionPrompt extends ValidatingPrompt
 {
 	private final Dialog dialog;
 	private final NPC npc;
 
-	public StorylineQuestionPromt(final Dialog d, final NPC inNPC)
+	public StorylineQuestionPrompt(final Dialog d, final NPC inNPC)
 	{
 		this.dialog = d;
 		this.npc = inNPC;
@@ -34,9 +34,11 @@ public class StorylineQuestionPromt extends ValidatingPrompt
 		Bukkit.getPluginManager().callEvent(event);
 		if(event.isCancelled())
 			return this;
+
 		final Integer next = this.dialog.getNextID(type);
 		if(next == 0)
 			return END_OF_CONVERSATION;
+
 		return ConversationHandler.getPromptByID(next, this.npc);
 	}
 
@@ -46,6 +48,7 @@ public class StorylineQuestionPromt extends ValidatingPrompt
 		final AnswerType type = new AnswerConverter(arg1).convert();
 		if(type != AnswerType.NOTHING)
 			return true;
+
 		arg0.getForWhom().sendRawMessage("<" + this.npc.getName() + ">" + "I don't get what you mean.");
 		return false;
 	}

@@ -6,7 +6,7 @@ import de.kumpelblase2.dragonslair.commanddialogs.GeneralConfigDialog;
 
 public class ChapterManageDialog extends ValidatingPrompt
 {
-	private final String[] options = new String[] { "create", "list", "delete", "edit", "back" };
+	private final String[] options = new String[]{ "create", "list", "delete", "edit", "back" };
 
 	@Override
 	public String getPromptText(final ConversationContext arg0)
@@ -33,6 +33,7 @@ public class ChapterManageDialog extends ValidatingPrompt
 			return new ChapterEditDialog();
 		else if(arg1.equalsIgnoreCase("back"))
 			return new GeneralConfigDialog();
+
 		return END_OF_CONVERSATION;
 	}
 
@@ -41,26 +42,30 @@ public class ChapterManageDialog extends ValidatingPrompt
 	{
 		if(input.contains(" "))
 		{
-			final String splitt[] = input.split("\\ ");
-			if(!splitt[0].equals("list"))
+			final String split[] = input.split("\\ ");
+			if(!split[0].equals("list"))
 				return false;
-			else if(splitt.length > 2)
+			else if(split.length > 2)
 				return false;
 			else
+			{
 				try
 				{
-					Integer.parseInt(splitt[1]);
+					Integer.parseInt(split[1]);
 					return true;
 				}
 				catch(final Exception e)
 				{
 					return false;
 				}
+			}
 		}
-		else
-			for(final String option : this.options)
-				if(option.equalsIgnoreCase(input))
-					return true;
+		else for(final String option : this.options)
+		{
+			if(option.equalsIgnoreCase(input))
+				return true;
+		}
+
 		return false;
 	}
 }

@@ -2,7 +2,8 @@ package de.kumpelblase2.dragonslair.logging;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import de.kumpelblase2.dragonslair.*;
@@ -37,12 +38,14 @@ public class LoggingManager
 					final String[] value = s.split("" + ((byte)0x1D));
 					before.put(value[0], value[1]);
 				}
+
 				split = result.getString(TableColumns.Log.AFTER_DATA).split(";");
 				for(final String s : split)
 				{
 					final String[] value = s.split("" + ((byte)0x1D));
 					after.put(value[0], value[1]);
 				}
+
 				final String dungeon = result.getString(TableColumns.Log.DUNGEON_NAME);
 				final int party = result.getInt(TableColumns.Log.PARTY_ID);
 				final Location loc = WorldUtility.stringToLocation(result.getString(TableColumns.Log.LOCATION));
@@ -60,6 +63,7 @@ public class LoggingManager
 					default:
 						break;
 				}
+
 				this.addEntry(dungeon, party, entry);
 			}
 		}
@@ -103,15 +107,16 @@ public class LoggingManager
 		this.logEntry(ad, inCurrent, entry);
 	}
 
-	public void logEntry(final ActiveDungeon ad, final BlockState inNew, final Recoverable entry)
+	void logEntry(final ActiveDungeon ad, final BlockState inNew, final Recoverable entry)
 	{
-		Map<Integer, Map<Location, Recoverable>> partyEntries = new HashMap<Integer, Map<Location, Recoverable>>();
+		Map<Integer, Map<Location, Recoverable>> partyEntries;
 		if(this.m_logEntries.containsKey(ad.getInfo().getName()))
 		{
 			partyEntries = this.m_logEntries.get(ad.getInfo().getName());
 			Map<Location, Recoverable> entries = new HashMap<Location, Recoverable>();
 			if(partyEntries.containsKey(ad.getCurrentParty().getID()))
 				entries = partyEntries.get(ad.getCurrentParty().getID());
+
 			if(entries.containsKey(inNew.getLocation()))
 			{
 				final Recoverable old = entries.get(inNew.getLocation());
@@ -125,10 +130,13 @@ public class LoggingManager
 						if(partyEntries.size() == 0)
 							this.m_logEntries.remove(ad.getInfo().getName());
 					}
+
 					return;
 				}
+
 				entry.setOldData(old.getOldData());
 			}
+
 			entries.put(inNew.getLocation(), entry);
 			partyEntries.put(ad.getCurrentParty().getID(), entries);
 		}
@@ -140,14 +148,16 @@ public class LoggingManager
 			partyEntries.put(ad.getCurrentParty().getID(), entries);
 			this.m_logEntries.put(ad.getInfo().getName(), partyEntries);
 		}
+
 		entry.save();
 	}
 
-	public void addEntry(final String inDungeon, final int inParty, final Recoverable inEntry)
+	void addEntry(final String inDungeon, final int inParty, final Recoverable inEntry)
 	{
 		if(inEntry == null)
 			return;
-		Map<Integer, Map<Location, Recoverable>> partyEntries = new HashMap<Integer, Map<Location, Recoverable>>();
+
+		Map<Integer, Map<Location, Recoverable>> partyEntries;
 		if(this.m_logEntries.containsKey(inDungeon))
 		{
 			partyEntries = this.m_logEntries.get(inDungeon);
@@ -157,6 +167,7 @@ public class LoggingManager
 				entries = partyEntries.get(inParty);
 				entries.put(inEntry.getLocation(), inEntry);
 			}
+
 			partyEntries.put(inParty, entries);
 		}
 		else

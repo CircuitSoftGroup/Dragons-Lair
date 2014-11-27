@@ -1,7 +1,6 @@
 package de.kumpelblase2.dragonslair.commanddialogs.dungeon;
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 import org.bukkit.conversations.*;
 import de.kumpelblase2.dragonslair.DragonsLairMain;
 import de.kumpelblase2.dragonslair.api.Dungeon;
@@ -23,7 +22,8 @@ public class DungeonListDialog extends MessagePrompt
 	@Override
 	public String getPromptText(final ConversationContext arg0)
 	{
-		final Dungeon[] dungeons = DragonsLairMain.getSettings().getDungeons().values().toArray(new Dungeon[0]);
+		Collection<Dungeon> var = DragonsLairMain.getSettings().getDungeons().values();
+		final Dungeon[] dungeons = var.toArray(new Dungeon[var.size()]);
 		Arrays.sort(dungeons, new Comparator<Dungeon>()
 		{
 			@Override
@@ -37,11 +37,15 @@ public class DungeonListDialog extends MessagePrompt
 					return 0;
 			}
 		});
-		arg0.getForWhom().sendRawMessage("There is/are " + dungeons.length + " dungeon(s) avaiblable.");
+		arg0.getForWhom().sendRawMessage("There is/are " + dungeons.length + " dungeon(s) available.");
 		if(10 * this.page >= dungeons.length)
 			this.page = dungeons.length / 12;
+
 		for(int i = 12 * this.page; i < dungeons.length && i < 10 * this.page + 12; i++)
+		{
 			arg0.getForWhom().sendRawMessage("   " + dungeons[i].getID() + " - " + dungeons[i].getName());
+		}
+
 		return "---------------- Page " + (this.page + 1) + "/" + (dungeons.length / 12 + 1);
 	}
 

@@ -2,7 +2,7 @@ package de.kumpelblase2.dragonslair.logging;
 
 import java.util.Map;
 import org.bukkit.Location;
-import org.bukkit.block.*;
+import org.bukkit.block.BlockState;
 import de.kumpelblase2.dragonslair.api.ActiveDungeon;
 
 public class BlockBreakEntry extends BlockEntry
@@ -31,9 +31,7 @@ public class BlockBreakEntry extends BlockEntry
 	{
 		if(inEntry.getType() != LogType.BLOCK_PLACE)
 			return false;
-		if(inEntry.getNewData().get("block_type").equals(this.m_before.get("block_type")))
-			return true;
-		else
-			return false;
+
+		return inEntry.getNewData().get("block_type").equals(this.m_before.get("block_type"));
 	}
 }

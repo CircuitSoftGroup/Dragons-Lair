@@ -1,20 +1,13 @@
 package de.kumpelblase2.dragonslair.utilities;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import sun.reflect.ConstructorAccessor;
-import sun.reflect.FieldAccessor;
-import sun.reflect.ReflectionFactory;
+import java.lang.reflect.*;
+import java.util.*;
+import sun.reflect.*;
 
 @SuppressWarnings("restriction")
 public final class EnumChange
 {
-	private static ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
+	private static final ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
 
 	private static void setFailsafeFieldValue(final Field field, final Object target, final Object value) throws NoSuchFieldException, IllegalAccessException
 	{
@@ -36,12 +29,14 @@ public final class EnumChange
 	private static void blankField(final Class<?> enumClass, final String fieldName) throws NoSuchFieldException, IllegalAccessException
 	{
 		for(final Field field : Class.class.getDeclaredFields())
+		{
 			if(field.getName().contains(fieldName))
 			{
-				AccessibleObject.setAccessible(new Field[] { field }, true);
+				AccessibleObject.setAccessible(new Field[]{ field }, true);
 				setFailsafeFieldValue(field, enumClass, null);
 				break;
 			}
+		}
 	}
 
 	private static void cleanEnumCache(final Class<?> enumClass) throws NoSuchFieldException, IllegalAccessException
@@ -62,23 +57,20 @@ public final class EnumChange
 	{
 		final Object[] parms = new Object[additionalValues.length + 2];
 		parms[0] = value;
-		parms[1] = Integer.valueOf(ordinal);
+		parms[1] = ordinal;
 		System.arraycopy(additionalValues, 0, parms, 2, additionalValues.length);
 		return enumClass.cast(getConstructorAccessor(enumClass, additionalTypes).newInstance(parms));
 	}
 
 	/**
 	 * Add an enum instance to the enum class given as argument
-	 * 
-	 * @param <T>
-	 *            the type of the enum (implicit)
-	 * @param enumType
-	 *            the class of the enum to be modified
-	 * @param enumName
-	 *            the name of the new enum instance to be added to the class.
+	 *
+	 * @param <T>      the type of the enum (implicit)
+	 * @param enumType the class of the enum to be modified
+	 * @param enumName the name of the new enum instance to be added to the class.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Enum<?>>void addEnum(final Class<T> enumType, final String enumName, final Class<?>[] constructorTypes, final Object[] constructorValues)
+	public static <T extends Enum<?>> void addEnum(final Class<T> enumType, final String enumName, final Class<?>[] constructorTypes, final Object[] constructorValues)
 	{
 		// 0. Sanity checks
 		if(!Enum.class.isAssignableFrom(enumType))
@@ -94,10 +86,11 @@ public final class EnumChange
 				break;
 			}
 		}
+
 		if(valuesField == null)
 			return;
-		
-		AccessibleObject.setAccessible(new Field[] { valuesField }, true);
+
+		AccessibleObject.setAccessible(new Field[]{ valuesField }, true);
 		try
 		{
 			// 2. Copy it
@@ -123,10 +116,11 @@ public final class EnumChange
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Enum<T>>void removeEnum(final Class<T> enumType, final String enumName)
+	public static <T extends Enum<T>> void removeEnum(final Class<T> enumType, final String enumName)
 	{
 		if(!Enum.class.isAssignableFrom(enumType))
 			throw new RuntimeException("class " + enumType + " is not an instance of Enum");
+
 		Field valuesField = null;
 		final Field[] fields = enumType.getDeclaredFields();
 		for(final Field field : fields)
@@ -137,9 +131,11 @@ public final class EnumChange
 				break;
 			}
 		}
+
 		if(valuesField == null)
 			return;
-		AccessibleObject.setAccessible(new Field[] { valuesField }, true);
+
+		AccessibleObject.setAccessible(new Field[]{ valuesField }, true);
 		try
 		{
 			final T[] previousValues = (T[])valuesField.get(enumType);

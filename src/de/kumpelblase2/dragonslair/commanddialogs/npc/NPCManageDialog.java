@@ -6,7 +6,7 @@ import de.kumpelblase2.dragonslair.commanddialogs.GeneralConfigDialog;
 
 public class NPCManageDialog extends ValidatingPrompt
 {
-	private final String[] options = new String[] { "create", "list", "delete", "edit", "spawn", "despawn", "back" };
+	private final String[] options = new String[]{ "create", "list", "delete", "edit", "spawn", "despawn", "back" };
 
 	@Override
 	public String getPromptText(final ConversationContext arg0)
@@ -37,6 +37,7 @@ public class NPCManageDialog extends ValidatingPrompt
 			return new NPCEditDialog();
 		else if(arg1.equals("back"))
 			return new GeneralConfigDialog();
+
 		return this;
 	}
 
@@ -45,25 +46,30 @@ public class NPCManageDialog extends ValidatingPrompt
 	{
 		if(arg1.contains(" "))
 		{
-			final String[] splitt = arg1.split(" ");
-			if(splitt[0].equals("list") && splitt.length == 2)
+			final String[] split = arg1.split(" ");
+			if(split[0].equals("list") && split.length == 2)
+			{
 				try
 				{
-					Integer.parseInt(splitt[1]);
+					Integer.parseInt(split[1]);
 					return true;
 				}
 				catch(final Exception e)
 				{
 					return false;
 				}
+			}
 			else
 				return false;
 		}
 		else
 		{
 			for(final String option : this.options)
+			{
 				if(option.equals(arg1))
 					return true;
+			}
+
 			return false;
 		}
 	}

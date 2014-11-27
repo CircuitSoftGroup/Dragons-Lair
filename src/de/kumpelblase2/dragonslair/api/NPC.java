@@ -4,7 +4,8 @@ import java.sql.*;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import de.kumpelblase2.dragonslair.*;
-import de.kumpelblase2.dragonslair.utilities.*;
+import de.kumpelblase2.dragonslair.utilities.InventoryUtilities;
+import de.kumpelblase2.dragonslair.utilities.WorldUtility;
 import de.kumpelblase2.remoteentities.api.RemoteEntityType;
 
 public class NPC
@@ -15,7 +16,7 @@ public class NPC
 	private Location loc;
 	private Material heldItem;
 	private ItemStack[] armor;
-	private boolean shoudSpawnAtBeginning;
+	private boolean shouldSpawnAtBeginning;
 	private boolean isInvincible;
 	private RemoteEntityType type;
 
@@ -23,7 +24,7 @@ public class NPC
 	{
 		this.id = -1;
 		this.armor = new ItemStack[4];
-		this.shoudSpawnAtBeginning = false;
+		this.shouldSpawnAtBeginning = false;
 		this.heldItem = Material.AIR;
 		this.type = RemoteEntityType.Human;
 	}
@@ -37,7 +38,7 @@ public class NPC
 			this.skin = result.getString(TableColumns.NPCs.SKIN);
 			this.loc = WorldUtility.stringToLocation(result.getString(TableColumns.NPCs.LOCATION));
 			this.heldItem = Material.getMaterial(result.getInt(TableColumns.NPCs.HELD_ITEM_ID));
-			this.shoudSpawnAtBeginning = result.getBoolean(TableColumns.NPCs.SHOULD_SPAWN_AT_BEGINNING);
+			this.shouldSpawnAtBeginning = result.getBoolean(TableColumns.NPCs.SHOULD_SPAWN_AT_BEGINNING);
 			this.armor = InventoryUtilities.stringToItems(result.getString(TableColumns.NPCs.ARMOR));
 			this.isInvincible = result.getBoolean(TableColumns.NPCs.INVINCIBLE);
 			this.type = RemoteEntityType.valueOf(result.getString(TableColumns.NPCs.TYPE));
@@ -100,7 +101,7 @@ public class NPC
 
 	public boolean shouldSpawnAtBeginning()
 	{
-		return this.shoudSpawnAtBeginning;
+		return this.shouldSpawnAtBeginning;
 	}
 
 	public boolean isInvincible()
@@ -112,12 +113,12 @@ public class NPC
 	{
 		this.isInvincible = invincible;
 	}
-	
+
 	public RemoteEntityType getType()
 	{
 		return this.type;
 	}
-	
+
 	public void setType(RemoteEntityType inType)
 	{
 		this.type = inType;
@@ -129,14 +130,14 @@ public class NPC
 		{
 			if(this.id != -1)
 			{
-				final PreparedStatement st = DragonsLairMain.createStatement("REPLACE INTO " + Tables.NPCS + "(" + "npc_id," + "npc_name," + "npc_skin," + "npc_location," + "npc_held_item," + "npc_armor," + "npc_spawned_from_beginning," + "npc_invincible,"  + "npc_type" + ") VALUES(?,?,?,?,?,?,?,?,?)");
+				final PreparedStatement st = DragonsLairMain.createStatement("REPLACE INTO " + Tables.NPCS + "(" + "npc_id," + "npc_name," + "npc_skin," + "npc_location," + "npc_held_item," + "npc_armor," + "npc_spawned_from_beginning," + "npc_invincible," + "npc_type" + ") VALUES(?,?,?,?,?,?,?,?,?)");
 				st.setInt(1, this.id);
 				st.setString(2, this.name);
 				st.setString(3, this.skin);
 				st.setString(4, WorldUtility.locationToString(this.loc));
 				st.setInt(5, this.heldItem.getId());
 				st.setString(6, InventoryUtilities.itemsToString(this.armor));
-				st.setBoolean(7, this.shoudSpawnAtBeginning);
+				st.setBoolean(7, this.shouldSpawnAtBeginning);
 				st.setBoolean(8, this.isInvincible);
 				st.setString(9, this.type.name());
 				st.execute();
@@ -149,7 +150,7 @@ public class NPC
 				st.setString(3, WorldUtility.locationToString(this.loc));
 				st.setInt(4, this.heldItem.getId());
 				st.setString(5, InventoryUtilities.itemsToString(this.armor));
-				st.setBoolean(6, this.shoudSpawnAtBeginning);
+				st.setBoolean(6, this.shouldSpawnAtBeginning);
 				st.setBoolean(7, this.isInvincible);
 				st.setString(8, this.type.name());
 				st.execute();
@@ -182,7 +183,7 @@ public class NPC
 
 	public void shouldSpawnAtBeginning(final boolean should)
 	{
-		this.shoudSpawnAtBeginning = should;
+		this.shouldSpawnAtBeginning = should;
 	}
 
 	public void remove()

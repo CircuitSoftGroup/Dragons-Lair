@@ -23,7 +23,7 @@ public class ChapterListDialog extends MessagePrompt
 	@Override
 	public String getPromptText(final ConversationContext arg0)
 	{
-		final Chapter[] chapters = DragonsLairMain.getSettings().getChapters().values().toArray(new Chapter[0]);
+		final Chapter[] chapters = DragonsLairMain.getSettings().getChapters().values().toArray(new Chapter[DragonsLairMain.getSettings().getChapters().values().size()]);
 		Arrays.sort(chapters, new Comparator<Chapter>()
 		{
 			@Override
@@ -37,11 +37,15 @@ public class ChapterListDialog extends MessagePrompt
 					return 0;
 			}
 		});
-		arg0.getForWhom().sendRawMessage("There is/are " + chapters.length + " chapter(s) avaiblable.");
+		arg0.getForWhom().sendRawMessage("There is/are " + chapters.length + " chapter(s) available.");
 		if(10 * this.page >= chapters.length)
 			this.page = chapters.length / 12;
+
 		for(int i = 12 * this.page; i < chapters.length && i < 10 * this.page + 12; i++)
+		{
 			arg0.getForWhom().sendRawMessage("   " + chapters[i].getID() + " - " + chapters[i].getName());
+		}
+
 		return "---------------- Page " + (this.page + 1) + "/" + (chapters.length / 12 + 1);
 	}
 

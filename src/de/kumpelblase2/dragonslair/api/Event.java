@@ -26,21 +26,24 @@ public class Event
 			final String options = result.getString(TableColumns.Events.ACTION_OPTIONS);
 			if(options != null && options.length() > 0 && options.contains(":"))
 			{
-				final String[] optionSplitt = options.split(";");
-				this.actionOptions = new Option[optionSplitt.length];
-				for(int i = 0; i < optionSplitt.length; i++)
+				final String[] optionSplit = options.split(";");
+				this.actionOptions = new Option[optionSplit.length];
+				for(int i = 0; i < optionSplit.length; i++)
+				{
 					try
 					{
-						final String[] splitt = optionSplitt[i].split(":");
-						this.actionOptions[i] = new Option(splitt[0], splitt[1]);
+						final String[] split = optionSplit[i].split(":");
+						this.actionOptions[i] = new Option(split[0], split[1]);
 					}
 					catch(final Exception e)
 					{
-						DragonsLairMain.Log.warning("Unable to parse event option: " + optionSplitt[i]);
+						DragonsLairMain.Log.warning("Unable to parse event option: " + optionSplit[i]);
 					}
+				}
 			}
 			else
 				this.actionOptions = new Option[0];
+
 			final String cooldownString = result.getString(TableColumns.Events.COOLDOWNS);
 			if(cooldownString != null && cooldownString.length() > 0)
 			{
@@ -85,9 +88,12 @@ public class Event
 
 	public String getOption(final String key)
 	{
-		for(int i = 0; i < this.actionOptions.length; i++)
-			if(this.actionOptions[i].getType().equals(key))
-				return this.actionOptions[i].getValue();
+		for(Option actionOption : this.actionOptions)
+		{
+			if(actionOption.getType().equals(key))
+				return actionOption.getValue();
+		}
+
 		return null;
 	}
 
@@ -98,10 +104,11 @@ public class Event
 			final StringBuilder optionString = new StringBuilder();
 			for(int i = 0; i < this.actionOptions.length; i++)
 			{
-				optionString.append(this.actionOptions[i].getType() + ":" + this.actionOptions[i].getValue());
+				optionString.append(this.actionOptions[i].getType()).append(":").append(this.actionOptions[i].getValue());
 				if(i != this.actionOptions.length - 1)
 					optionString.append(";");
 			}
+
 			if(this.id != -1)
 			{
 				final PreparedStatement st = DragonsLairMain.createStatement("REPLACE INTO " + Tables.EVENTS + "(" + "event_id," + "event_action_type," + "event_action_options," + "event_cooldowns" + ") VALUES(?,?,?,?)");
@@ -137,10 +144,12 @@ public class Event
 		{
 			if(this.actionOptions[i] == null)
 				continue;
-			sb.append(this.actionOptions[i].getType() + ":" + this.actionOptions[i].getValue());
+
+			sb.append(this.actionOptions[i].getType()).append(":").append(this.actionOptions[i].getValue());
 			if(i != this.actionOptions.length - 1)
 				sb.append(";");
 		}
+
 		return sb.toString();
 	}
 
@@ -148,27 +157,33 @@ public class Event
 	{
 		if(this.getOption(option) == null)
 			return;
+
 		final ArrayList<Option> options = new ArrayList<Option>(Arrays.asList(this.actionOptions));
 		for(int i = 0; i < options.size(); i++)
+		{
 			if(options.get(i).getType().equals(option))
 			{
 				options.remove(i);
 				break;
 			}
-		this.actionOptions = options.toArray(new Option[0]);
+		}
+		this.actionOptions = options.toArray(new Option[options.size()]);
 	}
 
 	public void setOption(final String key, final String value)
 	{
-		for(int i = 0; i < this.actionOptions.length; i++)
-			if(this.actionOptions[i].getType().equals(key))
+		for(Option actionOption : this.actionOptions)
+		{
+			if(actionOption.getType().equals(key))
 			{
-				this.actionOptions[i].setValue(value);
+				actionOption.setValue(value);
 				return;
 			}
+		}
+
 		final ArrayList<Option> options = new ArrayList<Option>(Arrays.asList(this.actionOptions));
 		options.add(new Option(key, value));
-		this.actionOptions = options.toArray(new Option[0]);
+		this.actionOptions = options.toArray(new Option[options.size()]);
 	}
 
 	public void remove()
@@ -191,11 +206,12 @@ public class Event
 		final StringBuilder sb = new StringBuilder();
 		for(final Cooldown cd : this.cooldowns)
 		{
-			sb.append(cd.getDungeonName() + ":" + cd.getRemainingTime());
-			sb.append(";");
+			sb.append(cd.getDungeonName()).append(":").append(cd.getRemainingTime()).append(";");
 		}
+
 		if(sb.length() > 1)
 			sb.substring(0, sb.length() - 1);
+
 		return sb.toString();
 	}
 
@@ -212,9 +228,11 @@ public class Event
 					this.cooldowns.remove(cd);
 					return false;
 				}
+
 				return true;
 			}
 		}
+
 		return false;
 	}
 

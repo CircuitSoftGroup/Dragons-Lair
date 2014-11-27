@@ -21,13 +21,17 @@ public class EventCreateDialog extends ValidatingPrompt
 			arg0.getForWhom().sendRawMessage(ChatColor.GREEN + "Please enter the type of the event:");
 			final StringBuilder types = new StringBuilder();
 			for(final EventActionType type : EventActionType.values())
-				types.append(ChatColor.AQUA + type.toString() + ChatColor.WHITE + ", ");
+			{
+				types.append(ChatColor.AQUA).append(type.toString()).append(ChatColor.WHITE).append(", ");
+			}
+
 			return types.deleteCharAt(types.length() - 2).toString();
 		}
 		else if(arg0.getSessionData("add_option") == null)
 		{
 			if(arg0.getSessionData("event_options") == null)
 				arg0.setSessionData("event_options", new ArrayList<Option>());
+
 			final StringBuilder currentOptions = new StringBuilder("Current options:");
 			final ArrayList<Option> options = (ArrayList<Option>)arg0.getSessionData("event_options");
 			for(int i = 0; i < options.size(); i++)
@@ -36,6 +40,8 @@ public class EventCreateDialog extends ValidatingPrompt
 				if(i != options.size() - 1)
 					currentOptions.append("; ");
 			}
+
+			arg0.getForWhom().sendRawMessage(ChatColor.YELLOW + currentOptions.toString());
 			return ChatColor.GREEN + "Do you want to add another option to the event?";
 		}
 		else if((Boolean)arg0.getSessionData("add_option"))
@@ -45,6 +51,7 @@ public class EventCreateDialog extends ValidatingPrompt
 		}
 		else if(arg0.getSessionData("event_option_type") != null)
 			return ChatColor.GREEN + "Please enter the value:";
+
 		return null;
 	}
 
@@ -59,10 +66,12 @@ public class EventCreateDialog extends ValidatingPrompt
 			arg0.setSessionData("event_option_type", null);
 			return new EventManageDialog();
 		}
+
 		if(arg0.getSessionData("event_type") == null)
 		{
 			if(arg1.equals("back"))
 				return new EventManageDialog();
+
 			arg0.setSessionData("event_type", arg1.toUpperCase().replace(" ", "_"));
 		}
 		else if(arg0.getSessionData("add_option") == null)
@@ -72,6 +81,7 @@ public class EventCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("event_type", null);
 				return this;
 			}
+
 			final AnswerType answer = new AnswerConverter(arg1).convert();
 			if(answer == AnswerType.AGREEMENT || answer == AnswerType.CONSIDERING_AGREEMENT || answer == AnswerType.CONSIDERING)
 				arg0.setSessionData("add_option", true);
@@ -92,6 +102,7 @@ public class EventCreateDialog extends ValidatingPrompt
 					arg0.setSessionData("event_type", null);
 					return this;
 				}
+
 				return new EventManageDialog();
 			}
 		}
@@ -102,6 +113,7 @@ public class EventCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("add_option", null);
 				return this;
 			}
+
 			arg0.setSessionData("event_option_type", arg1);
 			arg0.setSessionData("add_option", false);
 		}
@@ -112,9 +124,9 @@ public class EventCreateDialog extends ValidatingPrompt
 				arg0.setSessionData("add_option", true);
 				return this;
 			}
+
 			final String type = (String)arg0.getSessionData("event_option_type");
-			final String value = arg1;
-			final Option o = new Option(type, value);
+			final Option o = new Option(type, arg1);
 			if(arg0.getSessionData("event_options") == null)
 			{
 				final ArrayList<Option> options = new ArrayList<Option>();
@@ -127,6 +139,7 @@ public class EventCreateDialog extends ValidatingPrompt
 				options.add(o);
 				arg0.setSessionData("event_options", options);
 			}
+
 			arg0.setSessionData("event_option_type", null);
 			arg0.setSessionData("add_option", null);
 		}
@@ -140,17 +153,21 @@ public class EventCreateDialog extends ValidatingPrompt
 		{
 			boolean found = false;
 			for(final Option option : options)
+			{
 				if(option.getType().equalsIgnoreCase(required))
 				{
 					found = true;
 					break;
 				}
+			}
+
 			if(!found)
 				return null;
 		}
+
 		final Event e = new Event();
 		e.setActionType(EventActionType.valueOf(((String)context.getSessionData("event_type")).replace(" ", "_").toUpperCase()));
-		e.setOptions((options).toArray(new Option[0]));
+		e.setOptions(options.toArray(new Option[options.size()]));
 		e.save();
 		DragonsLairMain.getSettings().getEvents().put(e.getID(), e);
 		return e;
@@ -161,7 +178,9 @@ public class EventCreateDialog extends ValidatingPrompt
 	{
 		if(arg1.equals("back") || arg1.equals("cancel"))
 			return true;
+
 		if(arg0.getSessionData("event_type") == null)
+		{
 			try
 			{
 				EventActionType.valueOf(arg1.replace(" ", "_").toUpperCase());
@@ -172,12 +191,11 @@ public class EventCreateDialog extends ValidatingPrompt
 				arg0.getForWhom().sendRawMessage(ChatColor.RED + "There is no such event type.");
 				return false;
 			}
+		}
 		else if(arg0.getSessionData("add_option") == null)
 		{
 			final AnswerType answer = new AnswerConverter(arg1).convert();
-			if(answer != AnswerType.NOTHING)
-				return true;
-			return false;
+			return answer != AnswerType.NOTHING;
 		}
 		else if((Boolean)arg0.getSessionData("add_option"))
 		{
@@ -185,7 +203,7 @@ public class EventCreateDialog extends ValidatingPrompt
 				return true;
 			else
 			{
-				arg0.getForWhom().sendRawMessage(ChatColor.RED + "This option is not avaiable for this event type.");
+				arg0.getForWhom().sendRawMessage(ChatColor.RED + "This option is not available for this event type.");
 				return false;
 			}
 		}

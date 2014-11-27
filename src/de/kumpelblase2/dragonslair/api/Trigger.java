@@ -28,42 +28,41 @@ public class Trigger
 			final String options = result.getString(TableColumns.Triggers.TYPE_OPTIONS);
 			if(options.contains(":"))
 			{
-				final String[] optionSplitt = options.split(";");
-				this.type_options = new Option[optionSplitt.length];
-				for(int i = 0; i < optionSplitt.length; i++)
+				final String[] optionSplit = options.split(";");
+				this.type_options = new Option[optionSplit.length];
+				for(int i = 0; i < optionSplit.length; i++)
 				{
 					try
 					{
-						final String[] splitt = optionSplitt[i].split(":");
-						this.type_options[i] = new Option(splitt[0], splitt[1]);
+						final String[] split = optionSplit[i].split(":");
+						this.type_options[i] = new Option(split[0], split[1]);
 					}
 					catch(final Exception e)
 					{
-						DragonsLairMain.Log.warning("Unable to parse trigger option: " + optionSplitt[i]);
+						DragonsLairMain.Log.warning("Unable to parse trigger option: " + optionSplit[i]);
 					}
 				}
 			}
 			else
 				this.type_options = new Option[0];
-			
+
 			final String eventsString = result.getString(TableColumns.Triggers.ACTION_EVENT_ID);
 			if(eventsString != null && eventsString.contains(";"))
 			{
-				final String[] eventsSplitt = eventsString.split(";");
-				final Integer[] eventIDs = new Integer[eventsSplitt.length];
-				for(int i = 0; i < eventsSplitt.length; i++)
+				final String[] eventsSplit = eventsString.split(";");
+				final Integer[] eventIDs = new Integer[eventsSplit.length];
+				for(int i = 0; i < eventsSplit.length; i++)
 				{
 					try
 					{
-						eventIDs[i] = Integer.parseInt(eventsSplitt[i]);
+						eventIDs[i] = Integer.parseInt(eventsSplit[i]);
 					}
 					catch(final Exception e)
 					{
-						DragonsLairMain.Log.warning("Unable to parse event id " + eventsSplitt[i]);
-						continue;
+						DragonsLairMain.Log.warning("Unable to parse event id " + eventsSplit[i]);
 					}
 				}
-				
+
 				this.events = new ArrayList<Integer>(Arrays.asList(eventIDs));
 			}
 			else
@@ -81,7 +80,7 @@ public class Trigger
 					DragonsLairMain.Log.warning("Unable to parse event id " + eventsString);
 				}
 			}
-			
+
 			final String cooldownString = result.getString(TableColumns.Triggers.COOLDOWNS);
 			if(cooldownString != null && cooldownString.length() > 0)
 			{
@@ -122,8 +121,11 @@ public class Trigger
 	public String getOption(final String key)
 	{
 		for(final Option o : this.type_options)
+		{
 			if(o.getType().equals(key))
 				return o.getValue();
+		}
+
 		return null;
 	}
 
@@ -131,15 +133,18 @@ public class Trigger
 	{
 		final Option[] tmpOptions = new Option[inOptions.length];
 		for(int i = 0; i < inOptions.length; i++)
+		{
 			try
 			{
-				final String[] splitt = inOptions[i].split(":");
-				tmpOptions[i] = new Option(splitt[0], splitt[1]);
+				final String[] split = inOptions[i].split(":");
+				tmpOptions[i] = new Option(split[0], split[1]);
 			}
 			catch(final Exception e)
 			{
 				DragonsLairMain.Log.warning("Unable to parse trigger option: " + inOptions[i]);
 			}
+		}
+
 		this.type_options = tmpOptions;
 	}
 
@@ -166,19 +171,22 @@ public class Trigger
 			final StringBuilder optionString = new StringBuilder();
 			for(int i = 0; i < this.type_options.length; i++)
 			{
-				optionString.append(this.type_options[i].getType() + ":" + this.type_options[i].getValue());
+				optionString.append(this.type_options[i].getType()).append(":").append(this.type_options[i].getValue());
 				if(i != this.type_options.length - 1)
 					optionString.append(";");
 			}
+
 			final StringBuilder eventString = new StringBuilder();
 			for(int i = 0; i < this.events.size(); i++)
 			{
 				if(this.events.get(i) == 0)
 					continue;
+
 				eventString.append(this.events.get(i));
 				if(i != this.events.size() - 1)
 					eventString.append(";");
 			}
+
 			if(this.id != -1)
 			{
 				final PreparedStatement st = DragonsLairMain.createStatement("REPLACE INTO " + Tables.TRIGGERS + "(" + "trigger_id," + "trigger_type," + "trigger_type_options," + "trigger_action_event," + "trigger_cooldowns" + ") VALUES(?,?,?,?,?)");
@@ -214,10 +222,11 @@ public class Trigger
 		final StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < this.type_options.length; i++)
 		{
-			sb.append(this.type_options[i].getType() + ":" + this.type_options[i].getValue());
+			sb.append(this.type_options[i].getType()).append(":").append(this.type_options[i].getValue());
 			if(i != this.type_options.length)
 				sb.append(";");
 		}
+
 		return sb.toString();
 	}
 
@@ -225,17 +234,20 @@ public class Trigger
 	{
 		final List<Option> options = new ArrayList<Option>(Arrays.asList(this.type_options));
 		options.add(o);
-		this.type_options = options.toArray(new Option[0]);
+		this.type_options = options.toArray(new Option[options.size()]);
 	}
 
 	public void setOption(final String key, final String value)
 	{
 		for(final Option o : this.type_options)
+		{
 			if(o.getType().equals(key))
 			{
 				o.setValue(value);
 				return;
 			}
+		}
+
 		this.addOption(new Option(key, value));
 	}
 
@@ -243,11 +255,13 @@ public class Trigger
 	{
 		final List<Option> options = new ArrayList<Option>(Arrays.asList(this.type_options));
 		for(int i = 0; i < options.size(); i++)
+		{
 			if(options.get(i).getType().equals(key))
 			{
 				options.remove(i);
 				return;
 			}
+		}
 	}
 
 	public void remove()
@@ -278,9 +292,11 @@ public class Trigger
 					this.cooldowns.remove(cd);
 					return false;
 				}
+
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -302,11 +318,12 @@ public class Trigger
 		final StringBuilder sb = new StringBuilder();
 		for(final Cooldown cd : this.cooldowns)
 		{
-			sb.append(cd.getDungeonName() + ":" + cd.getRemainingTime());
-			sb.append(";");
+			sb.append(cd.getDungeonName()).append(":").append(cd.getRemainingTime()).append(";");
 		}
+
 		if(sb.length() > 1)
 			sb.substring(0, sb.length() - 1);
+
 		return sb.toString();
 	}
 

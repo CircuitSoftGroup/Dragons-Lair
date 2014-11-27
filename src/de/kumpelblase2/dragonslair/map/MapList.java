@@ -11,13 +11,17 @@ public class MapList
 	{
 		if(this.maps.size() == 0)
 			return null;
+
 		for(final MapEntry map : this.maps)
+		{
 			if(map.is(p))
 				return map.getMap();
+		}
+
 		return null;
 	}
 
-	public void addMap(final Player p, final DLMap map)
+	public void addMap(final DLMap map)
 	{
 		this.maps.add(new MapEntry(map));
 	}

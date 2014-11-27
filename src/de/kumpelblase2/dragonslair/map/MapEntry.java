@@ -25,6 +25,7 @@ public class MapEntry
 			return this.map.equals(object);
 		else if(object instanceof String)
 			return this.map.getPlayer().getName().equals(object);
+
 		return false;
 	}
 
@@ -45,18 +46,19 @@ public class MapEntry
 			final MapView view = Bukkit.getMap(item.getDurability());
 			if(view != null)
 			{
-				final Iterator<MapRenderer> renderers = view.getRenderers().iterator();
-				while(renderers.hasNext())
+				final Iterator<MapRenderer> renderer = view.getRenderers().iterator();
+				while(renderer.hasNext())
 				{
-					final MapRenderer rend = renderers.next();
+					final MapRenderer rend = renderer.next();
 					if(rend instanceof DLMapRenderer)
-						renderers.remove();
+						renderer.remove();
 				}
 			}
 		}
+
 		this.map = null;
 	}
-	
+
 	public int hashCode()
 	{
 		return this.map.getPlayer().getEntityId();
